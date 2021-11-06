@@ -1,0 +1,40 @@
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+      errors
+      health
+      ready
+      kubernetes cluster.local in-addr.arpa ip6.arpa {
+        pods insecure
+        upstream
+        fallthrough in-addr.arpa ip6.arpa
+        ttl 30
+      }
+      syncer {
+        from tsd
+        mode periodic
+        period 30s
+        scope cluster
+        clusterinfo tsd
+        ttl 30
+        dump file
+        file /data/infra.tce.io/clusterdns/coredns.data
+        fallthrough
+      }
+      forward . 192.168.192.11
+      prometheus :9153
+      cache 30
+      loop
+      reload
+      loadbalance
+      pprof 0.0.0.0:6053
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-02T08:57:30Z"
+  name: coredns-cluster-dns
+  namespace: kube-system
+  resourceVersion: "362021982"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/coredns-cluster-dns
+  uid: 40ba8453-91e4-4d85-9582-aa5b7f4d3a4b

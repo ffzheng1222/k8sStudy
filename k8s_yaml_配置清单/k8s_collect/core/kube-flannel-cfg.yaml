@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+  cni-conf.json: |
+    {
+      "name": "cbr0",
+      "plugins": [
+        {
+          "type": "flannel",
+          "delegate": {
+            "hairpinMode": true,
+            "isDefaultGateway": true
+          }
+        },
+        {
+          "type": "portmap",
+          "capabilities": {
+            "portMappings": true
+          }
+        }
+      ]
+    }
+  net-conf.json: |
+    {
+      "Network": "192.168.0.0/16",
+      "Backend": {
+        "Type": "ipip"
+      }
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-02T08:19:17Z"
+  labels:
+    app: flannel
+    tier: node
+  name: kube-flannel-cfg
+  namespace: kube-system
+  resourceVersion: "7618"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/kube-flannel-cfg
+  uid: 3fe5f13b-a8c4-482f-8a82-65d452a3f0af

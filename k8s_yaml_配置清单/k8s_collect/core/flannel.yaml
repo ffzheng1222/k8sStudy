@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    deprecated.daemonset.template.generation: "1"
+  creationTimestamp: "2020-10-02T08:19:17Z"
+  generation: 1
+  labels:
+    k8s-app: flannel
+  name: flannel
+  namespace: kube-system
+  resourceVersion: "461172801"
+  selfLink: /apis/apps/v1/namespaces/kube-system/daemonsets/flannel
+  uid: c78d5184-17b1-4fc4-9922-91823f6356ab
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: flannel
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: flannel
+    spec:
+      containers:
+      - args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        - --iface=$(HOST_IP)
+        command:
+        - /opt/bin/flanneld
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        image: registry.tce.com/library/flannel:v0.10.0
+        imagePullPolicy: IfNotPresent
+        name: kube-flannel
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /run
+          name: run
+        - mountPath: /etc/kube-flannel/
+          name: flannel-cfg
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: flannel
+      serviceAccountName: flannel
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+      - hostPath:
+          path: /run
+          type: ""
+        name: run
+      - hostPath:
+          path: /etc/cni/net.d
+          type: ""
+        name: cni
+      - configMap:
+          defaultMode: 420
+          name: kube-flannel-cfg
+        name: flannel-cfg
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+status:
+  currentNumberScheduled: 10
+  desiredNumberScheduled: 10
+  numberAvailable: 10
+  numberMisscheduled: 0
+  numberReady: 10
+  observedGeneration: 1
+  updatedNumberScheduled: 10

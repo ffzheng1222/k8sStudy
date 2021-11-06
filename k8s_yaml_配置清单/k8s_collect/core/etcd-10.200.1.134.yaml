@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/config.hash: c8214dda3d9be4a77879e74e3ea4074b
+    kubernetes.io/config.mirror: c8214dda3d9be4a77879e74e3ea4074b
+    kubernetes.io/config.seen: "2020-12-29T20:30:46.08314603+08:00"
+    kubernetes.io/config.source: file
+    prometheus.io/port: "2379"
+    prometheus.io/scheme: https
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+    tke.prometheus.io/scrape: "true"
+  creationTimestamp: "2020-12-29T12:30:46Z"
+  finalizers:
+  - infra.tce.io/port-manager
+  labels:
+    component: etcd
+    tier: control-plane
+  name: etcd-10.200.1.134
+  namespace: kube-system
+  resourceVersion: "388673855"
+  selfLink: /api/v1/namespaces/kube-system/pods/etcd-10.200.1.134
+  uid: 41972751-4015-4a23-bb62-4e2dd828d317
+spec:
+  containers:
+  - command:
+    - etcd
+    - --advertise-client-urls=https://10.200.1.134:2379
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --client-cert-auth=true
+    - --data-dir=/data1/var/lib/etcd
+    - --initial-advertise-peer-urls=https://10.200.1.134:2380
+    - --initial-cluster=10.200.1.133=https://10.200.1.133:2380,10.200.1.134=https://10.200.1.134:2380
+    - --initial-cluster-state=existing
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --listen-client-urls=https://127.0.0.1:2379,https://10.200.1.134:2379
+    - --listen-metrics-urls=http://0.0.0.0:2381
+    - --listen-peer-urls=https://10.200.1.134:2380
+    - --name=10.200.1.134
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-client-cert-auth=true
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --snapshot-count=10000
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    image: registry.tce.com/library/etcd:v3.4.7
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /health
+        port: 2381
+        scheme: HTTP
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 15
+    name: etcd
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /data1/var/lib/etcd
+      name: etcd-data
+    - mountPath: /etc/kubernetes/pki/etcd
+      name: etcd-certs
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostNetwork: true
+  nodeName: 10.200.1.134
+  priority: 2000000000
+  priorityClassName: system-cluster-critical
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    operator: Exists
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate
+    name: etcd-certs
+  - hostPath:
+      path: /data1/var/lib/etcd
+      type: DirectoryOrCreate
+    name: etcd-data
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:31:15Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:31:17Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:31:17Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:31:15Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://bc8f812a61b93e7db9bb8c4a8ff85b17e3960887de975c3948aa41e73fc6459c
+    image: registry.tce.com/library/etcd:v3.4.7
+    imageID: docker-pullable://registry.tce.com/library/etcd@sha256:0ec52c95b6cb9699bc4e3bf47783257f4b581f84e1d25876e4935ea20414a24c
+    lastState: {}
+    name: etcd
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2020-12-29T12:31:16Z"
+  hostIP: 10.200.1.134
+  phase: Running
+  podIP: 10.200.1.134
+  podIPs:
+  - ip: 10.200.1.134
+  qosClass: BestEffort
+  startTime: "2020-12-29T12:31:15Z"

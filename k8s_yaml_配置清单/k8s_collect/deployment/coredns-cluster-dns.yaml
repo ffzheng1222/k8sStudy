@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "2"
+  creationTimestamp: "2020-10-02T08:57:30Z"
+  generation: 6
+  labels:
+    app.kubernetes.io/instance: coredns
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: 1.6.6-20201127-130604-efa3b14-amd64
+    helm.sh/chart: cluster-dns-1.0.0
+    infra.tce.io/product: tcs
+    k8s-app: cluster-dns
+    kubernetes.io/name: KubeDNS
+  name: coredns-cluster-dns
+  namespace: kube-system
+  resourceVersion: "461131273"
+  selfLink: /apis/apps/v1/namespaces/kube-system/deployments/coredns-cluster-dns
+  uid: c31edcc1-1376-4da0-8e6a-499502f177ca
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: cluster-dns
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        infra.tce.io/product: tcs
+        k8s-app: cluster-dns
+    spec:
+      containers:
+      - args:
+        - -conf
+        - /etc/coredns/Corefile
+        - -enableglog
+        - -log_dir
+        - /log
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: SD_API_SCHEME
+          value: http
+        - name: SD_API_PORT
+          value: "30150"
+        image: registry.tce.com/infra/coredns-tcs:1.6.6-20201127-130604-efa3b14-amd64
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: cluster-dns
+        ports:
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        - containerPort: 9153
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 8181
+            scheme: HTTP
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "2"
+            memory: 256Mi
+          requests:
+            cpu: "2"
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/coredns
+          name: config-volume
+          readOnly: true
+        - mountPath: /data/infra.tce.io/clusterdns
+          name: data-volume
+        - mountPath: /log
+          name: log-volume
+      dnsPolicy: Default
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: cluster-dns-sa
+      serviceAccountName: cluster-dns-sa
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            k8s-app: cluster-dns
+        maxSkew: 1
+        topologyKey: infra.tce.io/zone
+        whenUnsatisfiable: DoNotSchedule
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: Corefile
+            path: Corefile
+          name: coredns-cluster-dns
+        name: config-volume
+      - hostPath:
+          path: /data/infra.tce.io/clusterdns
+          type: DirectoryOrCreate
+        name: data-volume
+      - hostPath:
+          path: /data/k8s/log/clusterdns
+          type: DirectoryOrCreate
+        name: log-volume
+status:
+  availableReplicas: 2
+  conditions:
+  - lastTransitionTime: "2020-10-02T08:57:30Z"
+    lastUpdateTime: "2020-12-22T06:26:06Z"
+    message: ReplicaSet "coredns-cluster-dns-7b49cb5cc6" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2020-12-22T08:47:10Z"
+    lastUpdateTime: "2020-12-22T08:47:10Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 6
+  readyReplicas: 2
+  replicas: 3
+  unavailableReplicas: 1
+  updatedReplicas: 3

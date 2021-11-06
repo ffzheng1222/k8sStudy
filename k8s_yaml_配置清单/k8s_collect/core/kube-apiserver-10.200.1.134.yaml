@@ -1,0 +1,154 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/config.hash: c4ebd8e6e0aa83ddc5125d55e329c4d4
+    kubernetes.io/config.mirror: c4ebd8e6e0aa83ddc5125d55e329c4d4
+    kubernetes.io/config.seen: "2020-12-29T20:38:32.537319225+08:00"
+    kubernetes.io/config.source: file
+    prometheus.io/port: "6443"
+    prometheus.io/scheme: https
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+    tke.prometheus.io/scrape: "true"
+  creationTimestamp: "2020-12-29T12:39:04Z"
+  finalizers:
+  - infra.tce.io/port-manager
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver-10.200.1.134
+  namespace: kube-system
+  resourceVersion: "388721889"
+  selfLink: /api/v1/namespaces/kube-system/pods/kube-apiserver-10.200.1.134
+  uid: e9c492db-459b-494e-bb07-a730332976db
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --advertise-address=10.200.1.134
+    - --allow-privileged=true
+    - --authorization-mode=Node,RBAC
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority
+    - --enable-bootstrap-token-auth=true
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+    - --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+    - --etcd-servers=https://10.200.1.134:2379,https://10.200.1.133:2379,https://10.200.0.133:2379
+    - --feature-gates=EvenPodsSpread=true
+    - --insecure-port=0
+    - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+    - --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+    - --requestheader-allowed-names=front-proxy-client
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --secure-port=6443
+    - --service-account-key-file=/etc/kubernetes/pki/sa.pub
+    - --service-cluster-ip-range=192.168.192.0/18
+    - --service-node-port-range=1-65535
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    - --token-auth-file=/etc/kubernetes/known_tokens.csv
+    image: registry.tce.com/library/kube-apiserver:v1.16.6
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 10.200.1.134
+        path: /healthz
+        port: 6443
+        scheme: HTTPS
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 15
+    name: kube-apiserver
+    resources:
+      requests:
+        cpu: 250m
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/pki
+      name: etc-pki
+      readOnly: true
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes
+      name: vol-dir-0
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostNetwork: true
+  nodeName: 10.200.1.134
+  priority: 2000000000
+  priorityClassName: system-cluster-critical
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    operator: Exists
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/pki
+      type: DirectoryOrCreate
+    name: etc-pki
+  - hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /etc/kubernetes
+      type: ""
+    name: vol-dir-0
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2020-10-02T08:19:39Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:39:01Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:39:01Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2020-10-02T08:19:39Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://3b135972b27ae338888bb68747c8e623b92ea0ca12b8e19d09a204ddb69adf4d
+    image: registry.tce.com/library/kube-apiserver:v1.16.6
+    imageID: docker-pullable://registry.tce.com/library/kube-apiserver@sha256:66101fcf1a9ba055f85b6c57837dd8757f264caa64c8475412f388e3c86fc439
+    lastState: {}
+    name: kube-apiserver
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2020-12-29T12:39:01Z"
+  hostIP: 10.200.1.134
+  phase: Running
+  podIP: 10.200.1.134
+  podIPs:
+  - ip: 10.200.1.134
+  qosClass: Burstable
+  startTime: "2020-10-02T08:19:39Z"

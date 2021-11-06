@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "2"
+  creationTimestamp: "2020-10-02T08:57:30Z"
+  generation: 10
+  labels:
+    app.kubernetes.io/instance: coredns
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: global-dns
+    app.kubernetes.io/version: 1.6.6-20201127-130604-efa3b14-amd64
+    helm.sh/chart: global-dns-1.0.0
+    infra.tce.io/product: tcs
+  name: coredns-global-dns
+  namespace: kube-system
+  resourceVersion: "461130957"
+  selfLink: /apis/apps/v1/namespaces/kube-system/deployments/coredns-global-dns
+  uid: 47556cd2-1e75-45ce-b280-712cdc74e354
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: global-dns
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: global-dns
+        infra.tce.io/product: tcs
+    spec:
+      containers:
+      - args:
+        - -conf
+        - /etc/coredns/Corefile
+        - -enableglog
+        - -log_dir
+        - /log
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: SD_API_SCHEME
+          value: http
+        - name: SD_API_PORT
+          value: "30150"
+        image: registry.tce.com/infra/coredns-tcs:1.6.6-20201127-130604-efa3b14-amd64
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: global-dns
+        ports:
+        - containerPort: 53
+          name: dns
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        - containerPort: 9153
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 8181
+            scheme: HTTP
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "2"
+            memory: 256Mi
+          requests:
+            cpu: "2"
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/coredns
+          name: config-volume
+          readOnly: true
+        - mountPath: /data/infra.tce.io/globaldns
+          name: data-volume
+        - mountPath: /log
+          name: log-volume
+      dnsPolicy: Default
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: global-dns-sa
+      serviceAccountName: global-dns-sa
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: global-dns
+        maxSkew: 1
+        topologyKey: infra.tce.io/zone
+        whenUnsatisfiable: DoNotSchedule
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: Corefile
+            path: Corefile
+          name: coredns-global-dns
+        name: config-volume
+      - hostPath:
+          path: /data/infra.tce.io/globaldns
+          type: DirectoryOrCreate
+        name: data-volume
+      - hostPath:
+          path: /data/k8s/log/globaldns
+          type: DirectoryOrCreate
+        name: log-volume
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2020-10-02T08:57:30Z"
+    lastUpdateTime: "2020-12-22T06:26:06Z"
+    message: ReplicaSet "coredns-global-dns-d4b566b5f" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2021-01-08T02:27:54Z"
+    lastUpdateTime: "2021-01-08T02:27:54Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  observedGeneration: 10
+  readyReplicas: 1
+  replicas: 3
+  unavailableReplicas: 2
+  updatedReplicas: 3

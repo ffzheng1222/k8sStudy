@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/config.hash: 9f3e202abbd1a76b1528e47ddf67cc57
+    kubernetes.io/config.mirror: 9f3e202abbd1a76b1528e47ddf67cc57
+    kubernetes.io/config.seen: "2020-10-02T16:19:55.724706201+08:00"
+    kubernetes.io/config.source: file
+    prometheus.io/port: "10251"
+    prometheus.io/scheme: http
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+    tke.prometheus.io/scrape: "true"
+  creationTimestamp: "2020-10-02T08:21:22Z"
+  finalizers:
+  - infra.tce.io/port-manager
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler-10.200.1.134
+  namespace: kube-system
+  resourceVersion: "388721755"
+  selfLink: /api/v1/namespaces/kube-system/pods/kube-scheduler-10.200.1.134
+  uid: 3dc00a36-0d01-4446-b0f9-53ca2a03b55c
+spec:
+  containers:
+  - command:
+    - kube-scheduler
+    - --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --bind-address=127.0.0.1
+    - --feature-gates=EvenPodsSpread=true
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --leader-elect=true
+    - --policy-config-file=/etc/kubernetes/scheduler-policy-config.json
+    - --use-legacy-policy-config=true
+    image: registry.tce.com/library/kube-scheduler:v1.16.6
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+        scheme: HTTP
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 15
+    name: kube-scheduler
+    resources:
+      requests:
+        cpu: 100m
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/kubernetes/scheduler.conf
+      name: kubeconfig
+      readOnly: true
+    - mountPath: /etc/kubernetes
+      name: vol-dir-0
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostNetwork: true
+  nodeName: 10.200.1.134
+  priority: 2000000000
+  priorityClassName: system-cluster-critical
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    operator: Exists
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: FileOrCreate
+    name: kubeconfig
+  - hostPath:
+      path: /etc/kubernetes
+      type: ""
+    name: vol-dir-0
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2020-10-02T08:19:39Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:38:58Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2020-12-29T12:38:58Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2020-10-02T08:19:39Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://972ef0ab54f1e830abb430af9ba66760dd775ecca9a33ca98644cd958581e09d
+    image: registry.tce.com/library/kube-scheduler:v1.16.6
+    imageID: docker-pullable://registry.tce.com/library/kube-scheduler@sha256:bb90e37d2cd1781b50d270aa200efcc43fa59cd3087757cfbc4fa4d286d6095f
+    lastState:
+      terminated:
+        containerID: docker://68dff736b0a9b5182c2c72c6453f34766e36543de0a32037c4defedfb07099f1
+        exitCode: 255
+        finishedAt: "2020-12-29T12:38:43Z"
+        reason: Error
+        startedAt: "2020-12-29T12:31:14Z"
+    name: kube-scheduler
+    ready: true
+    restartCount: 2
+    started: true
+    state:
+      running:
+        startedAt: "2020-12-29T12:38:57Z"
+  hostIP: 10.200.1.134
+  phase: Running
+  podIP: 10.200.1.134
+  podIPs:
+  - ip: 10.200.1.134
+  qosClass: Burstable
+  startTime: "2020-10-02T08:19:39Z"

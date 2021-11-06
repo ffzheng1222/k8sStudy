@@ -1,0 +1,33 @@
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+      errors
+      health
+      ready
+      syncer {
+        from tsd
+        mode periodic
+        period 30s
+        scope global
+        clusterinfo tsd
+        ttl 30
+        dump file
+        file /data/infra.tce.io/globaldns/coredns.data
+        fallthrough
+      }
+      prometheus :9153
+      cache 30
+      loop
+      reload
+      loadbalance
+      pprof 0.0.0.0:6053
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-02T08:57:30Z"
+  name: coredns-global-dns
+  namespace: kube-system
+  resourceVersion: "362021981"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/coredns-global-dns
+  uid: 512f4111-254d-412b-87ad-9cfc12929d05
