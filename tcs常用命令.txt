@@ -1,0 +1,59 @@
+全量备份pajero数据
+curl -X GET http://127.0.0.1:30150/api/v1alpha1/service/instances | python -m json.tool > /tmp/tony_pajero.txt
+
+
+根据 域名Host 为条件过滤
+curl -X GET http://127.0.0.1:30150/api/v1alpha1/service/instances?host=undefined.service.tcenter | python -m json.tool
+
+
+根据 serviceID 为条件过滤
+curl -X GET http://127.0.0.1:30150/api/v1alpha1/service/instances?serviceID=/usr/local/hcbs/cbs_alarm/conf | python -m json.tool
+
+
+# 删除pajero里面的某条注册信息
+curl -s "http://127.0.0.1:30150/api/v1alpha1/service/instances?host=csp-1.rgw.infra.tce.io" | jq '.[0]'  | tee /tmp/csp-1.rgw.infra.tce.io
+
+curl -s -X POST http://127.0.0.1:30150/api/v1alpha1/service/deregister -d@/tmp/csp-1.rgw.infra.tce.io
+
+
+==================================================================================================================
+
+
+
+# 解析secret所有非空的加密字段
+-o go-template='{{range $k,$v := .data}}{{printf "%s: " $k}}{{if not $v}}{{$v}}{{else}}{{$v | base64decode}} {{end}}{{"\n"}}{{end}}'
+
+# 获取pod所有的容器image镜像
+-o go-template='{{ range .spec.containers }}{{.image}}{{"\n"}}{{end}}'
+
+# 获取pod所有的 volumes
+-o go-template='{{range .spec.volumes}}{{if .hostPath}}{{"host volumes Name: "}}{{.name}}{{"\n"}}{{"host volumes path: "}}{{.hostPath.path}}{{"\n"}}{{end}}{{end}}'
+
+
+#  获取pod所有的 volumeMounts
+-o go-template='{{range .spec.containers}}{{"Container Name: "}}{{.name}}{{"\n"}}{{range .volumeMounts}}{{"volumeMounts Name: "}}{{.name}}{{"\n"}}{{"volumeMounts path: "}}{{.mountPath}}{{"\n"}}{{end}}{{end}}'
+
+
+# 获取pod上次终止时容器的状态
+-o go-template='{{range.status.containerStatuses}}{{"Container Name: "}}{{.name}}{{"\r\nLastState: "}}{{.lastState}}{{end}}'
+
+
+==================================================================================================================
+-A KUBE-SERVICES -d 10.14.135.186/32 -p tcp -m comment --comment "service-brokers/rabbitmq-oam-cmq-cmq-1-out:http has no endpoints" -m tcp --dport 15672 -j REJECT --reject-with icmp-port-unreachable
+
+# 清理iptable规则
+iptables  -t  filter  -D KUBE-SERVICES -d 10.14.135.186/32 -p tcp -m comment --comment "service-brokers/rabbitmq-oam-cmq-cmq-1-out:http has no endpoints" -m tcp --dport 15672 -j REJECT --reject-with icmp-port-unreachable
+
+
+
+
+-o go-template='{{ range .status.workloads }}{{.image}}{{"\n"}}{{end}}'
+
+-o go-template='{{range .status.workloads}}{{"ComponentName: "}}{{.componentName}}{{"\n"}}{{"Workload  Kind: "}}{{.workloadRef.kind}}{{"\n"}}{{"Workload  Name: "}}{{.workloadRef.name}}{{"\n"}}{{end}}'
+
+
+ -o go-template='{{range .status.workloads}}{{"ComponentName: "}}{{.componentName}}{{"\n"}}{{range .workloadRef}}{{"Workload  Kind: "}}{{.kind}}{{"\n"}}{{end}}{{end}}'
+
+
+kubectl  get   app   -ntce  ocloud-cbs-apimtnc  -o go-template='{{range .status.workloads}}{{"ComponentName: "}}{{.componentName}}{{"\n"}}{{"Workload  Kind: "}}{{.workloadRef.kind}}{{"\n"}}{{"Workload  Name: "}}{{.workloadRef.name}}{{"\n"}}{{end}}{{end}}'
+
