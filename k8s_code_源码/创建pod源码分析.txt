@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: nginx
+  labels: 
+    app: nginx
+  namespace: tony
+spec: 
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    imagePullPolicy: IfNotPresent 
+    ports: 
+    - containerPort: 80
+      hostPort: 80
+      protocol: TCP
+    volumeMounts: 
+    - name: nginx-log
+      mountPath: /data/tony_log
+    resources: 
+      limits: 
+        cpu: "2"
+        memory: 400Mi
+  hostNetwork: true
+  volumes: 
+  - hostPath: 
+      path: /data/tony/log
+      type: DirectoryOrCreate
+    name: nginx-log
+
+==============================================================
+源码分析：kubectl  create   -f  nginx.yaml
+
+# cmd/kubectl/kubectl.go：
+
+main()
+	|
+	# staging/src/k8s.io/kubectl/pkg/cmd/cmd.go
+	command := cmd.NewDefaultKubectlCommand()
+	return NewDefaultKubectlCommandWithArgs(NewDefaultPluginHandler(plugin.ValidPluginFilenamePrefixes), os.Args, os.Stdin, os.Stdout, os.Stderr)
+			|
+			func NewDefaultKubectlCommandWithArgs(pluginHandler PluginHandler, args []string, in io.Reader, out, errout io.Writer) *cobra.Command
+				cmd := NewKubectlCommand(in, out, errout)
+					|
+					func NewKubectlCommand(in io.Reader, out, err io.Writer) *cobra.Command
+						f := cmdutil.NewFactory(matchVersionKubeConfigFlags)
+						groups := templates.CommandGroups{
+							{
+								Message: "Basic Commands (Beginner):",
+								Commands: []*cobra.Command{
+									create.NewCmdCreate(f, ioStreams),
+										|
+										# staging/src/k8s.io/kubectl/pkg/cmd/create/create.go
+										cmd := &cobra.Command {
+											Example: createExample,
+												|
+												// kubectl create -f ./pod.json
+												// cat pod.json | kubectl create -f -
+											Run: func(cmd *cobra.Command, args []string) {
+												cmdutil.CheckErr(o.RunCreate(f, cmd))
+													|
+													r := f.NewBuilder().
+														Unstructured().
+														Schema(schema).
+														ContinueOnError().
+														NamespaceParam(cmdNamespace).DefaultNamespace().
+														FilenameParam(enforceNamespace, &o.FilenameOptions).
+														LabelSelectorParam(o.Selector).
+														Flatten().
+														Do()
+														  |
+														  # staging/src/k8s.io/cli-runtime/pkg/resource/builder.go
+											}
+										}
+									expose.NewCmdExposeService(f, ioStreams),
+									run.NewCmdRun(f, ioStreams),
+									set.NewCmdSet(f, ioStreams),
+								},
+							},
+						}
+				cmdPathPieces := args[1:]
+				cmd.Find(cmdPathPieces)
+				HandlePluginCommand(pluginHandler, cmdPathPieces)
+
+					
+
+
+
+
+
+
+
+
+
+
