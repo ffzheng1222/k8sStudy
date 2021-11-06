@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+  name: tony-local-pvc
+  namespace: tony
+spec: 
+  accessModes: 
+  - ReadWriteMany
+  resources: 
+    requests: 
+      storage: 50M
+  selector: 
+    matchLabels: 
+      release: "stable"
+  storageClassName: tony-local-storage 
+  volumeName: tony-local-pv
+  volumeMode: Filesystem
